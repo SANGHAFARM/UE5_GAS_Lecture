@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "ABGA_Attack.generated.h"
 
+class UABComboActionData;
 /**
  * 
  */
@@ -35,4 +36,21 @@ protected:
 	
 	UFUNCTION()
 	void OnInterruptedCallback();
+	
+	// 몽타주의 섹션 정보 불러오기
+	FName GetNextSection();
+	
+	// 콤보 타이머 발동
+	void StartComboTimer();
+	// 지정된 유효 시간 내에 콤보 입력이 들어왔는지 체크
+	void CheckComboInput();
+	
+protected:
+	// 콤보 정보
+	UPROPERTY()
+	TObjectPtr<UABComboActionData> CurrentComboData;
+	
+	uint8 CurrentCombo = 0;
+	FTimerHandle ComboTimerHandle;
+	bool HasNextComboInput = false;
 };
