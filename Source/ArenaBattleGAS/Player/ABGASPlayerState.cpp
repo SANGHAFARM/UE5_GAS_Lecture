@@ -4,6 +4,7 @@
 #include "Player/ABGASPlayerState.h"
 
 #include "AbilitySystemComponent.h"
+#include "Attribute/ABGASCharacterAttributeSet.h"
 
 AABGASPlayerState::AABGASPlayerState()
 {
@@ -11,6 +12,7 @@ AABGASPlayerState::AABGASPlayerState()
 	// ASC는 서버에서 클라이언트로 전송이 돼야 하기 때문에 컴포넌트가 리플리케이션이 되도록 설정
 	//ASC->SetIsReplicated(true);
 	
+	AttributeSet = CreateDefaultSubobject<UABGASCharacterAttributeSet>(TEXT("AttributeSet"));
 }
 
 UAbilitySystemComponent* AABGASPlayerState::GetAbilitySystemComponent() const

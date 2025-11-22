@@ -64,7 +64,7 @@ void UABAT_Trace::FinalizeTargetActor()
 		// 타겟 액터에게 어빌리티 정보를 전달
 		SpawnedTargetActor->StartTargeting(Ability);
 		// 타겟 액터에게 타겟 데이터를 생성시키는 함수
-		SpawnedTargetActor->ConfirmTargeting();
+		SpawnedTargetActor->ConfirmTargetingAndContinue();
 	}
 }
 

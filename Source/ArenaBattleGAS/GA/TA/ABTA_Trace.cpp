@@ -7,6 +7,10 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "Physics/ABCollision.h"
+#include "AbilitySystemComponent.h"
+#include "Attribute/ABGASCharacterAttributeSet.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "ArenaBattleGAS.h"
 
 AABTA_Trace::AABTA_Trace()
 {
@@ -34,9 +38,24 @@ FGameplayAbilityTargetDataHandle AABTA_Trace::MakeTargetData() const
 {
 	ACharacter* Character = CastChecked<ACharacter>(SourceActor);
 	
+	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(SourceActor);
+	if (ASC == nullptr)
+	{
+		ABGAS_LOG(LogABGAS, Error, TEXT("ASC not found!"));
+		return FGameplayAbilityTargetDataHandle();
+	}
+	
+	const UABGASCharacterAttributeSet* AttributeSet = ASC->GetSet<UABGASCharacterAttributeSet>();
+	if (AttributeSet == nullptr)
+	{
+		ABGAS_LOG(LogABGAS, Error, TEXT("ABCharacterAttributeSet not found!"));
+		return FGameplayAbilityTargetDataHandle();
+	}
+	
+	// ASC의 AttributeSet의 AttackRange와 AttackRadius로 설정
 	FHitResult OutHitResult;
-	const float AttackRange = 100.0f;
-	const float AttackRadius = 50.f;
+	const float AttackRange = AttributeSet->GetAttackRange();
+	const float AttackRadius = AttributeSet->GetAttackRadius();
 	
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(UABTA_Trace), false, Character);
 	const FVector Forward = Character->GetActorForwardVector();
