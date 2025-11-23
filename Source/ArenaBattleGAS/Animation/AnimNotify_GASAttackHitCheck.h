@@ -30,4 +30,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FGameplayTag TriggerGameplayTag;
 	
+	// 현재 콤보 단계
+	UPROPERTY(EditAnywhere)
+	float ComboAttackLevel;
 };

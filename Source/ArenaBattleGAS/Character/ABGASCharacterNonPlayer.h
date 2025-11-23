@@ -8,6 +8,7 @@
 
 #include "ABGASCharacterNonPlayer.generated.h"
 
+class UGameplayEffect;
 class UABGASCharacterAttributeSet;
 class UAbilitySystemComponent;
 /**
@@ -31,4 +32,10 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UABGASCharacterAttributeSet> AttributeSet;
+	
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TSubclassOf<UGameplayEffect> InitStatEffect;
+	
+	UPROPERTY(EditAnywhere, Category = GAS)
+	float Level;
 };

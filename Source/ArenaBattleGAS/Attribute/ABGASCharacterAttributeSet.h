@@ -27,8 +27,12 @@ public:
 	
 	// 어트리뷰트 변경 전에 호출
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	// 어트리뷰트 변경 후에 호출
-	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+	
+	// // 어트리뷰트 변경 후에 호출
+	// virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+	
+	//virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
 	// 어트리뷰트 세트 접근자 매크로 설정
 	ATTRIBUTE_ACCESSORS(UABGASCharacterAttributeSet, AttackRange);
@@ -39,6 +43,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UABGASCharacterAttributeSet, MaxAttackRate);
 	ATTRIBUTE_ACCESSORS(UABGASCharacterAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UABGASCharacterAttributeSet, MaxHealth);
+	ATTRIBUTE_ACCESSORS(UABGASCharacterAttributeSet, Damage);
 	
 	// 캐릭터 어트리뷰트
 protected:
@@ -66,4 +71,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Health", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxHealth;
 	
+	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData Damage;
+	
+	// ABGE_AttackDamage에서 멤버 변수에 접근할 수 있도록 friend 선언
+	friend class UABGE_AttackDamage;
 };

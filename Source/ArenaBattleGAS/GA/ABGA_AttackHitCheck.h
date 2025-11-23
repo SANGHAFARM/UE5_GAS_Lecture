@@ -24,4 +24,10 @@ protected:
 	// 어빌리티 태스크가 작업을 마치면 델리게이트를 통해 실행될 함수
 	UFUNCTION()
 	void OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+	
+	UPROPERTY(EditAnywhere, Category = "GAS")
+	TSubclassOf<UGameplayEffect> AttackDamageEffect;
+	
+	// 애님 노티파이로부터 콤보 단계를 전달받아 저장할 변수
+	float CurrentLevel;
 };
