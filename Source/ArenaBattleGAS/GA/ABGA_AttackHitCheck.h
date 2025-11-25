@@ -28,6 +28,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TSubclassOf<UGameplayEffect> AttackDamageEffect;
 	
+	UPROPERTY(EditAnywhere, Category = "GAS")
+	TSubclassOf<UGameplayEffect> AttackBuffEffect;
+	
 	// 애님 노티파이로부터 콤보 단계를 전달받아 저장할 변수
 	float CurrentLevel;
 };

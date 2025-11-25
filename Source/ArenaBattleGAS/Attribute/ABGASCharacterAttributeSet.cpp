@@ -5,6 +5,7 @@
 
 #include "ArenaBattleGAS.h"
 #include "GameplayEffectExtension.h"
+#include "Tag/ABGameplayTag.h"
 
 UABGASCharacterAttributeSet::UABGASCharacterAttributeSet() :
 	AttackRange(100.0f),
@@ -35,6 +36,27 @@ void UABGASCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& A
 	// }
 }
 
+bool UABGASCharacterAttributeSet::PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data)
+{
+	if (!Super::PreGameplayEffectExecute(Data))
+	{
+		return false;
+	}
+	
+	// 변경 값(대미지)이 0보다 클 경우
+	if (Data.EvaluatedData.Magnitude > 0.0f)
+	{
+		// 만약 Target이 무적 태그를 보유하고 있다면 변경 값(대미지)을 0으로 갱신하고 GE 실행 중단
+		if (Data.Target.HasMatchingGameplayTag(ABTAG_CHARACTER_INVINCIBLE))
+		{
+			Data.EvaluatedData.Magnitude = 0.0f;
+			return false;
+		}
+	}
+	
+	return true;
+}
+
 // void UABGASCharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 // {
 // 	if (Attribute == GetHealthAttribute())
@@ -61,4 +83,13 @@ void UABGASCharacterAttributeSet::PostGameplayEffectExecute(const struct FGamepl
 		// 적용 후 대미지를 0으로 초기화
 		SetDamage(0.0f);
 	}
+	
+	if (GetHealth() <= 0.0f && !bOutOfHealth)
+	{
+		// Health가 0 이하로 떨어지면 ISDEAD 태그 추가
+		Data.Target.AddLooseGameplayTag(ABTAG_CHARACTER_ISDEAD);
+		OnOutOfHealth.Broadcast();
+	}
+	
+	bOutOfHealth = (GetHealth() <= 0.0f);
 }

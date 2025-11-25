@@ -8,6 +8,7 @@
 
 #include "ABGASCharacterPlayer.generated.h"
 
+class UABGASWidgetComponent;
 class UAbilitySystemComponent;
 class UGameplayAbility;
 /**
@@ -33,6 +34,9 @@ protected:
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
 	
+	UFUNCTION()
+	virtual void OnOutOfHealth();
+	
 protected:
 	// 어빌리티 시스템 컴포넌트
 	UPROPERTY(EditAnywhere, Category = GAS)
@@ -45,4 +49,7 @@ protected:
 	// 입력에 대한 어빌리티와 Id 목록
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TMap<int32, TSubclassOf<UGameplayAbility>> StartInputAbilities;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UABGASWidgetComponent> HpBar;
 };

@@ -14,6 +14,9 @@
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOutOfHealthDelegate);
+
 /**
  * 
  */
@@ -31,7 +34,7 @@ public:
 	// // 어트리뷰트 변경 후에 호출
 	// virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	
-	//virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
+	virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
 	// 어트리뷰트 세트 접근자 매크로 설정
@@ -44,6 +47,9 @@ public:
 	ATTRIBUTE_ACCESSORS(UABGASCharacterAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UABGASCharacterAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UABGASCharacterAttributeSet, Damage);
+	
+	// GetSet 함수는 const로 선언이 되어 있기 때문에 const 예외를 주기 위해 mutable 선언
+	mutable FOutOfHealthDelegate OnOutOfHealth;
 	
 	// 캐릭터 어트리뷰트
 protected:
@@ -73,6 +79,8 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Damage;
+	
+	bool bOutOfHealth = false;
 	
 	// ABGE_AttackDamage에서 멤버 변수에 접근할 수 있도록 friend 선언
 	friend class UABGE_AttackDamage;

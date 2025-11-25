@@ -6,6 +6,8 @@
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Player/ABGASPlayerState.h"
+#include "UI/ABGASWidgetComponent.h"
+#include "Attribute/ABGASCharacterAttributeSet.h"
 
 AABGASCharacterPlayer::AABGASCharacterPlayer()
 {
@@ -19,6 +21,18 @@ AABGASCharacterPlayer::AABGASCharacterPlayer()
 	if (ComboActionMontageRef.Object)
 	{
 		ComboActionMontage = ComboActionMontageRef.Object;
+	}
+	
+	HpBar = CreateDefaultSubobject<UABGASWidgetComponent>(TEXT("HpBar"));
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/ArenaBattleGAS/UI/WBP_HpBar.WBP_HpBar_C"));
+	if (HpBarWidgetRef.Class)
+	{
+		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBar->SetDrawSize(FVector2D(200.0f, 20.0f));
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
 
@@ -38,6 +52,10 @@ void AABGASCharacterPlayer::PossessedBy(AController* NewController)
 		ASC = GASPS->GetAbilitySystemComponent();
 		// OwnerActor와 AvatarActor가 결정됐기 때문에 초기화 실행
 		ASC->InitAbilityActorInfo(GASPS, this);
+		
+		// AttributeSet은 PlayerState에 있기 때문에 ASC를 통해 불러와서 사용
+		const UABGASCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UABGASCharacterAttributeSet>();
+		CurrentAttributeSet->OnOutOfHealth.AddDynamic(this, &AABGASCharacterPlayer::OnOutOfHealth);
 		
 		// StartAbilities를 순회하면서 Spec 생성 후 어빌리티 추가
 		for (const auto& StartAbility : StartAbilities)
@@ -116,4 +134,9 @@ void AABGASCharacterPlayer::GASInputReleased(int32 InputId)
 			ASC->AbilitySpecInputReleased(*Spec);
 		}
 	}
+}
+
+void AABGASCharacterPlayer::OnOutOfHealth()
+{
+	SetDead();
 }

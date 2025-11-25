@@ -8,6 +8,7 @@
 
 #include "ABGASCharacterNonPlayer.generated.h"
 
+class UABGASWidgetComponent;
 class UGameplayEffect;
 class UABGASCharacterAttributeSet;
 class UAbilitySystemComponent;
@@ -26,6 +27,9 @@ public:
 	
 	virtual void PossessedBy(AController* NewController) override;
 	
+	UFUNCTION()
+	virtual void OnOutOfHealth();
+	
 protected:
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TObjectPtr<UAbilitySystemComponent> ASC;
@@ -38,4 +42,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = GAS)
 	float Level;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UABGASWidgetComponent> HpBar;
 };
