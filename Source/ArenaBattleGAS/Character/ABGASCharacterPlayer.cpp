@@ -8,6 +8,7 @@
 #include "Player/ABGASPlayerState.h"
 #include "UI/ABGASWidgetComponent.h"
 #include "Attribute/ABGASCharacterAttributeSet.h"
+#include "Tag/ABGameplayTag.h"
 
 AABGASCharacterPlayer::AABGASCharacterPlayer()
 {
@@ -34,6 +35,15 @@ AABGASCharacterPlayer::AABGASCharacterPlayer()
 		HpBar->SetDrawSize(FVector2D(200.0f, 20.0f));
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+	
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshRef(TEXT("/Game/InfinityBladeWeapons/Weapons/Blunt/Blunt_Hellhammer/SK_Blunt_HellHammer.SK_Blunt_HellHammer"));
+	if (WeaponMeshRef.Object)
+	{
+		WeaponMesh = WeaponMeshRef.Object;
+	}
+	
+	WeaponRange = 75.0f;
+	WeaponAttackRate = 100.0f;
 }
 
 UAbilitySystemComponent* AABGASCharacterPlayer::GetAbilitySystemComponent() const
@@ -52,6 +62,11 @@ void AABGASCharacterPlayer::PossessedBy(AController* NewController)
 		ASC = GASPS->GetAbilitySystemComponent();
 		// OwnerActor와 AvatarActor가 결정됐기 때문에 초기화 실행
 		ASC->InitAbilityActorInfo(GASPS, this);
+		
+		// ASC 내부의 TMap에서 ABTAG_EVENT_CHARACTER_WEAPONEQUIP 키를 가진 delegate를 찾고, 없으면 새로 생성 후 해당 delegate에 EquipWeapon을 바인딩
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(ABTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AABGASCharacterPlayer::EquipWeapon);
+		// ASC 내부의 TMap에서 ABTAG_EVENT_CHARACTER_WEAPONUNEQUIP 키를 가진 delegate를 찾고, 없으면 새로 생성 후 해당 delegate에 UnEquipWeapon을 바인딩
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(ABTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AABGASCharacterPlayer::UnEquipWeapon);
 		
 		// AttributeSet은 PlayerState에 있기 때문에 ASC를 통해 불러와서 사용
 		const UABGASCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UABGASCharacterAttributeSet>();
@@ -139,4 +154,34 @@ void AABGASCharacterPlayer::GASInputReleased(int32 InputId)
 void AABGASCharacterPlayer::OnOutOfHealth()
 {
 	SetDead();
+}
+
+void AABGASCharacterPlayer::EquipWeapon(const FGameplayEventData* EventData)
+{
+	if (Weapon)
+	{
+		Weapon->SetSkeletalMesh(WeaponMesh);
+		
+		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRangeAttribute());
+		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRateAttribute());
+		
+		// 현재 상태 + 무기 능력치로 Set
+		ASC->SetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange + WeaponRange);
+		ASC->SetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate + WeaponAttackRate);
+	}
+}
+
+void AABGASCharacterPlayer::UnEquipWeapon(const FGameplayEventData* EventData)
+{
+	if (Weapon)
+	{
+		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRangeAttribute());
+		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRateAttribute());
+		
+		// 현재 상태 - 무기 능력치로 Set
+		ASC->SetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
+		ASC->SetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
+		
+		Weapon->SetSkeletalMesh(nullptr);
+	}
 }

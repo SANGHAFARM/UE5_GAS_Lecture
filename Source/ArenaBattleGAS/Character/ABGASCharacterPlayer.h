@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/ABCharacterPlayer.h"
 #include "AbilitySystemInterface.h"
+#include "Abilities/GameplayAbilityTypes.h"
 
 #include "ABGASCharacterPlayer.generated.h"
 
@@ -37,6 +38,9 @@ protected:
 	UFUNCTION()
 	virtual void OnOutOfHealth();
 	
+	void EquipWeapon(const FGameplayEventData* EventData);
+	void UnEquipWeapon(const FGameplayEventData* EventData);
+	
 protected:
 	// 어빌리티 시스템 컴포넌트
 	UPROPERTY(EditAnywhere, Category = GAS)
@@ -52,4 +56,13 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UABGASWidgetComponent> HpBar;
+	
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	TObjectPtr<USkeletalMesh> WeaponMesh;
+	
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	float WeaponRange;
+	
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	float WeaponAttackRate;
 };
