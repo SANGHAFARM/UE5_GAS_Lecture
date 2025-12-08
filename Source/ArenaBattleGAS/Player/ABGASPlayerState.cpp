@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Attribute/ABGASCharacterAttributeSet.h"
+#include "Attribute/ABGASCharacterSkillAttributeSet.h"
 
 AABGASPlayerState::AABGASPlayerState()
 {
@@ -13,6 +14,8 @@ AABGASPlayerState::AABGASPlayerState()
 	//ASC->SetIsReplicated(true);
 	
 	AttributeSet = CreateDefaultSubobject<UABGASCharacterAttributeSet>(TEXT("AttributeSet"));
+	
+	SkillAttributeSet = CreateDefaultSubobject<UABGASCharacterSkillAttributeSet>(TEXT("SkillAttributeSet"));
 }
 
 UAbilitySystemComponent* AABGASPlayerState::GetAbilitySystemComponent() const

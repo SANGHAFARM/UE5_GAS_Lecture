@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "ABGA_AttackHitCheck.generated.h"
 
+class AABTA_Trace;
 /**
  * 
  */
@@ -33,4 +34,8 @@ protected:
 	
 	// 애님 노티파이로부터 콤보 단계를 전달받아 저장할 변수
 	float CurrentLevel;
+	
+	// 목표로 삼는 액터를 어빌리티마다 구분하기 위해 사전 정의한 클래스
+	UPROPERTY(EditAnywhere, Category = "GAS")
+	TSubclassOf<AABTA_Trace> TargetActorClass;
 };

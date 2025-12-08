@@ -23,6 +23,8 @@ class ARENABATTLEGAS_API AABGASCharacterPlayer : public AABCharacterPlayer, publ
 public:
 	AABGASCharacterPlayer();
 	
+	FORCEINLINE virtual UAnimMontage* GetSkillActionMontage() const { return SkillActionMontage; }
+	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	// Character의 ASC에 PlayerState의 ASC를 대입하고 어빌리티를 추가하는 함수
 	virtual void PossessedBy(AController* NewController) override;
@@ -65,4 +67,10 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	float WeaponAttackRate;
+	
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TSubclassOf<UGameplayAbility> SkillAbilityClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<UAnimMontage> SkillActionMontage;
 };

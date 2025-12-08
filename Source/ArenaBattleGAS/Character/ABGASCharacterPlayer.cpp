@@ -44,6 +44,12 @@ AABGASCharacterPlayer::AABGASCharacterPlayer()
 	
 	WeaponRange = 75.0f;
 	WeaponAttackRate = 100.0f;
+	
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Game/ArenaBattleGAS/Animation/AM_SkillAttack.AM_SkillAttack"));
+	if (SkillActionMontageRef.Object)
+	{
+		SkillActionMontage = SkillActionMontageRef.Object;
+	}
 }
 
 UAbilitySystemComponent* AABGASCharacterPlayer::GetAbilitySystemComponent() const
@@ -118,6 +124,7 @@ void AABGASCharacterPlayer::SetupGASInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AABGASCharacterPlayer::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AABGASCharacterPlayer::GASInputReleased, 0);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AABGASCharacterPlayer::GASInputPressed, 1);
+		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AABGASCharacterPlayer::GASInputPressed, 2);
 	}
 }
 
@@ -162,6 +169,14 @@ void AABGASCharacterPlayer::EquipWeapon(const FGameplayEventData* EventData)
 	{
 		Weapon->SetSkeletalMesh(WeaponMesh);
 		
+		FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
+		NewSkillSpec.InputID = 2;
+		// ASC에 해당 어빌리티가 없으면 추가
+		if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
+		{
+			ASC->GiveAbility(NewSkillSpec);
+		}
+		
 		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRangeAttribute());
 		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRateAttribute());
 		
@@ -181,6 +196,13 @@ void AABGASCharacterPlayer::UnEquipWeapon(const FGameplayEventData* EventData)
 		// 현재 상태 - 무기 능력치로 Set
 		ASC->SetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
 		ASC->SetNumericAttributeBase(UABGASCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
+		
+		// ASC에서 해당 어빌리티를 찾고, 존재하면 제거
+		FGameplayAbilitySpec* SkillAbilitySpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
+		if (SkillAbilitySpec)
+		{
+			ASC->ClearAbility(SkillAbilitySpec->Handle);
+		}
 		
 		Weapon->SetSkeletalMesh(nullptr);
 	}
